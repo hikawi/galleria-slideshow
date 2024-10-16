@@ -1,0 +1,18 @@
+---
+import MasonryTab from "./MasonryTab.astro";
+
+interface Props {
+  data: any;
+  indices: Map<string, number>;
+}
+
+const { data, indices } = Astro.props;
+---
+
+<div class="flex flex-col gap-6 p-6 md:hidden">
+  {
+    data.map((frame: any) => (
+      <MasonryTab idx={indices.get(frame.name)!} name={frame.name} artist={frame.artist.name} thumbnail={frame.images.thumbnail} />
+    ))
+  }
+</div>

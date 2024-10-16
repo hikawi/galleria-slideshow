@@ -1,0 +1,31 @@
+---
+interface Props {
+  idx: number;
+  name: string;
+  artist: string;
+  thumbnail: string;
+}
+
+const { idx, name, artist, thumbnail } = Astro.props;
+---
+
+<!-- You shouldn't use tabindex much, but because of the unsupported masonry layout, I have to. It is +2 because 1 is the start slideshow button, and first index + 2 is the first focusable element -->
+<a
+  class="group relative cursor-pointer text-white outline-none focus:scale-105 focus:ring-4 focus:ring-red-400"
+  href={`/${idx}`}
+  tabindex={idx + 2}
+>
+  {/* I actually don't know what ALT to put here, since it will clash with the title text anyway. */}
+  <img src={thumbnail} draggable="false" class="size-full object-cover" alt="" />
+
+  {/* The white bg to show up if it's hovered */}
+  <div class="absolute inset-0 hidden bg-white/50 group-hover:block"></div>
+
+  {/* The gradient to make the text pop up more, since this comes after <img> this will be put above. */}
+  <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/80"></div>
+
+  <div class="absolute inset-0 flex flex-col justify-end gap-2 p-8">
+    <h1 class="heading-2">{name}</h1>
+    <p class="subhead-2 opacity-75">{artist}</p>
+  </div>
+</a>
