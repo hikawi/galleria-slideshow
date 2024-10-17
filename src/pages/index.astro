@@ -1,5 +1,22 @@
 ---
+import Logo from "@/components/Logo.astro";
+import Masonry from "@/components/Masonry";
 import PageLayout from "@/layouts/PageLayout.astro";
 ---
 
-<PageLayout title="Galleria" description="A slideshow of famous paintings" />
+<PageLayout title="Galleria" description="A slideshow of famous paintings">
+  <header>
+    <div class="flex items-center justify-between p-6 md:px-10 md:py-7 xl:p-10">
+      <Logo className="h-8 xl:h-12" />
+      <a href="/slideshow/0" class="link-2 md:link-1 uppercase text-dark-gray hover:text-black focus:text-black" tabindex="1">
+        Start Slideshow
+      </a>
+    </div>
+
+    <hr class="w-auto border-medium-gray xl:mx-10" />
+  </header>
+
+  <main>
+    <Masonry client:load />
+  </main>
+</PageLayout>
