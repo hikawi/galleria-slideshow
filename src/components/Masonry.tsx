@@ -1,6 +1,7 @@
 import data from "@/data.json";
 import useResize from "@/hooks/use-resize";
-import { For, Match, Switch } from "solid-js";
+import { For, Match, onCleanup, onMount, Switch } from "solid-js";
+import { isServer } from "solid-js/web";
 
 function indexOf(node: any) {
   return data.findIndex((val) => val === node);
@@ -55,6 +56,25 @@ function TabletMasonry() {
 }
 
 function DesktopMasonry() {
+  function keyboardHandler(e: KeyboardEvent) {
+    switch (e.key) {
+      case "s":
+      case "S":
+        window.location.href = "/slideshow/0";
+        break;
+    }
+  }
+
+  onMount(() => {
+    if (isServer) return;
+    window.addEventListener("keydown", keyboardHandler);
+  });
+
+  onCleanup(() => {
+    if (isServer) return;
+    window.removeEventListener("keydown", keyboardHandler);
+  });
+
   return (
     <div class="grid grid-cols-4 gap-10 p-10">
       <For each={[1, 2, 3, 4]}>

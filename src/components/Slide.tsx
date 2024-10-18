@@ -1,6 +1,7 @@
 import useResize from "@/hooks/use-resize";
 import { $lightbox } from "@/stores/lightbox";
-import { Match, Switch } from "solid-js";
+import { Match, onCleanup, onMount, Switch } from "solid-js";
+import { isServer } from "solid-js/web";
 
 type Props = {
   name: string;
@@ -18,7 +19,7 @@ type Props = {
 function ViewImageButton(props: { gallery: string }) {
   return (
     <button
-      class="flex h-10 items-center gap-3 bg-black/75 px-4 hover:bg-white/25"
+      class="relative flex h-10 items-center gap-3 bg-black/75 px-4 before:invisible before:absolute before:inset-0 before:size-full before:bg-white/25 hover:before:visible"
       onClick={() => $lightbox.set(props.gallery)}
     >
       <svg class="size-3" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -122,16 +123,97 @@ function TabletSlide(props: Props) {
   );
 }
 
+function DesktopSlide(props: Props) {
+  return (
+    <div class="flex h-full w-full flex-row items-stretch overflow-hidden px-10 py-16">
+      <div class="relative z-0 h-[35rem] min-w-[30rem]">
+        <img
+          src={props.images.hero.large}
+          alt={props.name}
+          class="size-full object-cover"
+          draggable="false"
+        />
+
+        <div class="absolute bottom-4 left-4">
+          <ViewImageButton gallery={props.images.gallery} />
+        </div>
+      </div>
+
+      <div class="relative z-10 -ml-16 flex min-h-full flex-col justify-between">
+        <div class="flex h-fit min-w-[24rem] max-w-[28rem] flex-col gap-6 bg-white pb-16 pl-16">
+          <h1 class="heading-1">{props.name}</h1>
+          <span class="subhead-1 text-dark-gray">{props.artist.name}</span>
+        </div>
+
+        <img
+          src={props.artist.image}
+          alt={props.artist.name}
+          class="-mb-12 ml-24 size-32"
+          draggable="false"
+        />
+      </div>
+
+      <div class="relative flex max-w-fit flex-col justify-between pl-4">
+        <span class="display absolute right-0 top-0 z-0 text-light-gray">
+          {props.year}
+        </span>
+
+        {/* Empty div */}
+        <div></div>
+
+        <p class="body relative z-10 pr-32 text-dark-gray">
+          {props.description}
+        </p>
+
+        <a
+          href={props.source}
+          class="link-2 uppercase text-dark-gray underline hover:text-black focus:text-black"
+        >
+          Go to source
+        </a>
+      </div>
+    </div>
+  );
+}
+
 export default function Slide(props: Props) {
   const size = useResize();
 
+  function keyboardHandler(e: KeyboardEvent) {
+    switch (e.key) {
+      case "v":
+      case "V":
+        $lightbox.set(props.images.gallery);
+        break;
+    }
+  }
+
+  onMount(() => {
+    if (isServer) return;
+    window.addEventListener("keydown", keyboardHandler);
+  });
+
+  onCleanup(() => {
+    if (isServer) return;
+    window.removeEventListener("keydown", keyboardHandler);
+  });
+
   return (
-    <Switch>
-      <Match when={size() < 768}>
+    <Switch
+      fallback={
+        <p class="heading-2 mx-auto animate-pulse p-6 text-center">
+          Loading slide...
+        </p>
+      }
+    >
+      <Match when={size() > 0 && size() < 768}>
         <MobileSlide {...props} />
       </Match>
       <Match when={size() >= 768 && size() < 1280}>
         <TabletSlide {...props} />
+      </Match>
+      <Match when={size() >= 1280}>
+        <DesktopSlide {...props} />
       </Match>
     </Switch>
   );

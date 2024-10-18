@@ -1,4 +1,37 @@
+import { onCleanup, onMount } from "solid-js";
+import { isServer } from "solid-js/web";
+
 export default function ControlButtons(props: { idx: number; max: number }) {
+  function keyboardHandler(e: KeyboardEvent) {
+    switch (e.key) {
+      case "n":
+      case "N":
+      case "ArrowRight":
+        if (props.idx < props.max)
+          window.location.href = `/slideshow/${props.idx + 1}`;
+        break;
+      case "p":
+      case "P":
+      case "ArrowLeft":
+        if (props.idx > 0) window.location.href = `/slideshow/${props.idx - 1}`;
+        break;
+      case "s":
+      case "S":
+        window.location.href = "/";
+        break;
+    }
+  }
+
+  onMount(() => {
+    if (isServer) return;
+    window.addEventListener("keydown", keyboardHandler);
+  });
+
+  onCleanup(() => {
+    if (isServer) return;
+    window.removeEventListener("keydown", keyboardHandler);
+  });
+
   return (
     <div class="flex flex-row items-center justify-center gap-6">
       <button
@@ -6,6 +39,7 @@ export default function ControlButtons(props: { idx: number; max: number }) {
         disabled={props.idx === 0}
         class="enabled:hover:opacity-50 disabled:cursor-not-allowed disabled:opacity-15"
         onClick={() => (window.location.href = `/slideshow/${props.idx - 1}`)}
+        aria-keyshortcuts="p"
       >
         <svg
           class="h-4 w-auto md:h-6"
@@ -27,6 +61,7 @@ export default function ControlButtons(props: { idx: number; max: number }) {
         disabled={props.idx === props.max}
         class="enabled:hover:opacity-50 disabled:cursor-not-allowed disabled:opacity-15"
         onClick={() => (window.location.href = `/slideshow/${props.idx + 1}`)}
+        aria-keyshortcuts="n"
       >
         <svg
           class="h-4 w-auto md:h-6"
